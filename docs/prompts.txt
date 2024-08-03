@@ -1,0 +1,10 @@
+The sandquake project will use browser js as well as nodejs code using ES style modules, shared wherever possible. At runtime it will depend on the 'three' module.  It will include both integration and unit tests using jasmine and chai. Documentation will be done with jsdoc. Any packaging will use webpack. Scripts will be run from npm.   
+I have already created a github project and cloned it locally. How do I initialise this project?
+
+---
+
+The project will use the following parts of `three`. How do I get webpack to make them available in browser js?
+    "three": "./three.js",
+    "three/examples/jsm/controls/TrackballControls.js": "./three/examples/jsm/controls/TrackballControls.js"
+
+     "three": "^0.167.1"

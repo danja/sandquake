@@ -1,0 +1,15 @@
+{
+    "output": {
+        "filePath": "./sandquake-repopack.txt",
+        "headerText": "Sandquake repo",
+        "removeComments": true
+    },
+    "ignore": {
+        "useDefaultPatterns": true,
+        "customPatterns": [
+            "*.log",
+            "docs",
+            "**/*repopack*"
+        ]
+    }
+}
