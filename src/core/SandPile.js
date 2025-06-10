@@ -26,6 +26,9 @@ export class SandPile {
         // Track unstable cells for efficient avalanche processing
         this.unstableCells = new Set();
         
+        // Randomness factor for avalanche jitter (0.0 = deterministic, 1.0 = maximum randomness)
+        this.randomnessFactor = 0.0;
+        
         // Statistics
         this.totalSand = 0;
         this.totalAvalanches = 0;
@@ -107,23 +110,156 @@ export class SandPile {
         // Remove sand from current cell
         this.grid[x][y] = remainder;
 
-        // Distribute sand to neighbors
+        // Get base neighbors
         const neighbors = getNeighbors(x, y);
+        
+        // Apply randomness if enabled
+        if (this.randomnessFactor > 0) {
+            this.distributeWithRandomness(x, y, sandPerNeighbor, neighbors, newUnstableCells);
+        } else {
+            // Original deterministic distribution
+            this.distributeToNeighbors(sandPerNeighbor, neighbors, newUnstableCells);
+        }
+
+        // Check if current cell is still unstable
+        if (this.grid[x][y] >= this.criticalMass) {
+            newUnstableCells.add(`${x},${y}`);
+        }
+    }
+
+    /**
+     * Distribute sand to neighbors with randomness
+     * @param {number} sourceX - Source cell X coordinate
+     * @param {number} sourceY - Source cell Y coordinate
+     * @param {number} sandPerNeighbor - Base sand amount per neighbor
+     * @param {Array} baseNeighbors - Array of base neighbor positions
+     * @param {Set} newUnstableCells - Set to track newly unstable cells
+     */
+    distributeWithRandomness(sourceX, sourceY, sandPerNeighbor, baseNeighbors, newUnstableCells) {
+        // Create distribution map for all potential targets
+        const distributionMap = new Map();
+        
+        // Add base neighbors to distribution
+        for (const neighbor of baseNeighbors) {
+            const key = `${neighbor.x},${neighbor.y}`;
+            distributionMap.set(key, {
+                x: neighbor.x,
+                y: neighbor.y,
+                amount: sandPerNeighbor
+            });
+        }
+        
+        // Apply randomness by redistributing some sand to adjacent cells
+        const randomnessIntensity = this.randomnessFactor;
+        const jitterRadius = Math.ceil(randomnessIntensity * 2); // Randomness affects up to 2 cells away
+        
+        for (const neighbor of baseNeighbors) {
+            if (!isValidGridPosition(neighbor.x, neighbor.y, this.size)) {
+                // Original neighbor is off-grid, sand is lost
+                this.totalSand -= sandPerNeighbor;
+                continue;
+            }
+            
+            // Determine how much sand to jitter
+            const jitterAmount = Math.floor(sandPerNeighbor * randomnessIntensity * Math.random());
+            const stableAmount = sandPerNeighbor - jitterAmount;
+            
+            // Add stable amount to original neighbor
+            this.addSandToCell(neighbor.x, neighbor.y, stableAmount, newUnstableCells);
+            
+            // Distribute jittered sand to nearby cells
+            if (jitterAmount > 0) {
+                this.distributeJitteredSand(neighbor.x, neighbor.y, jitterAmount, jitterRadius, newUnstableCells);
+            }
+        }
+    }
+
+    /**
+     * Distribute sand to base neighbors (deterministic)
+     * @param {number} sandPerNeighbor - Sand amount per neighbor
+     * @param {Array} neighbors - Array of neighbor positions
+     * @param {Set} newUnstableCells - Set to track newly unstable cells
+     */
+    distributeToNeighbors(sandPerNeighbor, neighbors, newUnstableCells) {
         for (const neighbor of neighbors) {
             if (isValidGridPosition(neighbor.x, neighbor.y, this.size)) {
-                this.grid[neighbor.x][neighbor.y] += sandPerNeighbor;
-                
-                // Check if neighbor becomes unstable
-                if (this.grid[neighbor.x][neighbor.y] >= this.criticalMass) {
-                    newUnstableCells.add(`${neighbor.x},${neighbor.y}`);
-                }
+                this.addSandToCell(neighbor.x, neighbor.y, sandPerNeighbor, newUnstableCells);
             } else {
                 // Sand falls off the edge
                 this.totalSand -= sandPerNeighbor;
             }
         }
+    }
 
-        // Check if current cell is still unstable
+    /**
+     * Distribute jittered sand to random nearby cells
+     * @param {number} centerX - Center X coordinate
+     * @param {number} centerY - Center Y coordinate
+     * @param {number} totalJitter - Total amount of sand to distribute
+     * @param {number} radius - Maximum radius for jitter
+     * @param {Set} newUnstableCells - Set to track newly unstable cells
+     */
+    distributeJitteredSand(centerX, centerY, totalJitter, radius, newUnstableCells) {
+        const candidates = [];
+        
+        // Find all valid positions within jitter radius
+        for (let dx = -radius; dx <= radius; dx++) {
+            for (let dy = -radius; dy <= radius; dy++) {
+                if (dx === 0 && dy === 0) continue; // Skip center
+                
+                const targetX = centerX + dx;
+                const targetY = centerY + dy;
+                
+                if (isValidGridPosition(targetX, targetY, this.size)) {
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance <= radius) {
+                        // Weight closer cells more heavily
+                        const weight = 1.0 / (1.0 + distance);
+                        candidates.push({ x: targetX, y: targetY, weight });
+                    }
+                }
+            }
+        }
+        
+        if (candidates.length === 0) {
+            // No valid candidates, sand is lost
+            this.totalSand -= totalJitter;
+            return;
+        }
+        
+        // Distribute jittered sand based on weights
+        const totalWeight = candidates.reduce((sum, candidate) => sum + candidate.weight, 0);
+        let remainingJitter = totalJitter;
+        
+        for (let i = 0; i < candidates.length && remainingJitter > 0; i++) {
+            const candidate = candidates[i];
+            const proportion = candidate.weight / totalWeight;
+            const amount = Math.min(remainingJitter, Math.floor(totalJitter * proportion));
+            
+            if (amount > 0) {
+                this.addSandToCell(candidate.x, candidate.y, amount, newUnstableCells);
+                remainingJitter -= amount;
+            }
+        }
+        
+        // Distribute any remainder randomly
+        if (remainingJitter > 0 && candidates.length > 0) {
+            const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)];
+            this.addSandToCell(randomCandidate.x, randomCandidate.y, remainingJitter, newUnstableCells);
+        }
+    }
+
+    /**
+     * Add sand to a specific cell and track instability
+     * @param {number} x - Grid X coordinate
+     * @param {number} y - Grid Y coordinate
+     * @param {number} amount - Amount of sand to add
+     * @param {Set} newUnstableCells - Set to track newly unstable cells
+     */
+    addSandToCell(x, y, amount, newUnstableCells) {
+        this.grid[x][y] += amount;
+        
+        // Check if cell becomes unstable
         if (this.grid[x][y] >= this.criticalMass) {
             newUnstableCells.add(`${x},${y}`);
         }
@@ -220,5 +356,21 @@ export class SandPile {
      */
     getCriticalMass() {
         return this.criticalMass;
+    }
+
+    /**
+     * Set the randomness factor for avalanche distribution
+     * @param {number} factor - Randomness factor (0.0 = deterministic, 1.0 = maximum randomness)
+     */
+    setRandomnessFactor(factor) {
+        this.randomnessFactor = Math.max(0.0, Math.min(1.0, factor));
+    }
+
+    /**
+     * Get the current randomness factor
+     * @returns {number} Current randomness factor
+     */
+    getRandomnessFactor() {
+        return this.randomnessFactor;
     }
 }

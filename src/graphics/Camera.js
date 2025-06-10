@@ -95,8 +95,18 @@ export class Camera {
      * @param {number} distance - New distance
      */
     setDistance(distance) {
-        this.distance = Math.max(8, Math.min(50, distance));
+        this.distance = Math.max(2, Math.min(50, distance));
         this.updatePosition();
+    }
+
+    /**
+     * Zoom the camera in or out
+     * @param {number} delta - Zoom delta (positive = zoom in, negative = zoom out)
+     */
+    zoom(delta) {
+        const zoomFactor = 1 + (delta * 0.1);
+        const newDistance = this.distance * zoomFactor;
+        this.setDistance(newDistance);
     }
 
     /**
