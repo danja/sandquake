@@ -106,7 +106,7 @@ export class Simulation {
      * @returns {SandSource} The created source
      */
     addRandomSource() {
-        const source = SandSource.createRandom(this.gridSize);
+        const source = SandSource.createRandom(this.gridSize, 0.5, 2.0, 5);
         this.sources.push(source);
         return source;
     }

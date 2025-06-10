@@ -67,25 +67,25 @@ export class Scene {
 
         // Main directional light (sun)
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 15, 5);
+        directionalLight.position.set(2.5, 3.75, 1.25);
         directionalLight.castShadow = true;
         
         // Configure shadow camera
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 50;
-        directionalLight.shadow.camera.left = -20;
-        directionalLight.shadow.camera.right = 20;
-        directionalLight.shadow.camera.top = 20;
-        directionalLight.shadow.camera.bottom = -20;
+        directionalLight.shadow.camera.far = 12.5;
+        directionalLight.shadow.camera.left = -5;
+        directionalLight.shadow.camera.right = 5;
+        directionalLight.shadow.camera.top = 5;
+        directionalLight.shadow.camera.bottom = -5;
         
         this.scene.add(directionalLight);
         this.directionalLight = directionalLight;
 
         // Secondary fill light
         const fillLight = new THREE.DirectionalLight(0x8888bb, 0.2);
-        fillLight.position.set(-5, 10, -5);
+        fillLight.position.set(-1.25, 2.5, -1.25);
         this.scene.add(fillLight);
     }
 
@@ -107,7 +107,7 @@ export class Scene {
      * Create the ground plane
      */
     createGround() {
-        const groundGeometry = new THREE.PlaneGeometry(20, 20);
+        const groundGeometry = new THREE.PlaneGeometry(5, 5);
         const groundMaterial = new THREE.MeshLambertMaterial({ 
             color: 0x8B4513,  // Brown color
             transparent: true,
@@ -126,7 +126,7 @@ export class Scene {
      * Create the ceiling plane
      */
     createCeiling() {
-        const ceilingGeometry = new THREE.PlaneGeometry(20, 20);
+        const ceilingGeometry = new THREE.PlaneGeometry(5, 5);
         const ceilingMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x444444,
             transparent: true,
@@ -136,7 +136,7 @@ export class Scene {
         
         this.ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
         this.ceiling.rotation.x = -Math.PI / 2;
-        this.ceiling.position.y = 8;
+        this.ceiling.position.y = 2;
         
         this.scene.add(this.ceiling);
     }
@@ -146,7 +146,7 @@ export class Scene {
      */
     createBounds() {
         const boundsGeometry = new THREE.EdgesGeometry(
-            new THREE.BoxGeometry(20, 8, 20)
+            new THREE.BoxGeometry(5, 2, 5)
         );
         const boundsMaterial = new THREE.LineBasicMaterial({ 
             color: 0x666666,
@@ -155,7 +155,7 @@ export class Scene {
         });
         
         this.bounds = new THREE.LineSegments(boundsGeometry, boundsMaterial);
-        this.bounds.position.y = 4;
+        this.bounds.position.y = 1;
         
         this.scene.add(this.bounds);
     }
@@ -191,11 +191,11 @@ export class Scene {
             const worldPos = source.getWorldPosition();
             
             // Create a small sphere to represent the source
-            const markerGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const markerGeometry = new THREE.SphereGeometry(0.05, 6, 6);
             const markerMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0xff4444,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.9
             });
             
             const marker = new THREE.Mesh(markerGeometry, markerMaterial);

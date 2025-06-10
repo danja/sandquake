@@ -123,13 +123,15 @@ Implementation progress for the core 3D sandpile simulation based on the Abelian
 
 ### Rendering Performance
 - Target: 60 FPS with smooth camera movement
-- Sand renderer: Optimized updates every 2 frames
+- Sand renderer: Optimized updates every 3 frames with 16.67ms rate limiting
 - Memory management: Proper disposal of Three.js objects
+- Change detection: Optimized to 9 sample points for smoother performance
 
 ### Simulation Performance  
-- Grid size: 64x64 cells
+- Grid size: 64x64 cells scaled to 5x5x2 world units
 - Avalanche processing: Limited to 5 iterations per frame
 - Source updates: Frame-rate independent timing
+- Source markers: Ultra-small (0.05 radius) for minimal visual impact
 
 ## Bug Fixes 🔧
 
@@ -141,6 +143,11 @@ Implementation progress for the core 3D sandpile simulation based on the Abelian
 - ✅ **KeyboardHandler Event Listener Errors**: Fixed memory leaks and console errors by properly binding event handlers and implementing correct disposal pattern
 - ✅ **Camera Control API Mismatch**: Fixed arrow key controls by using correct Scene.getCamera() method and proper parameter passing to Camera.pan()/tilt() methods
 - ✅ **HeatmapRenderer Grid Access Error**: Fixed `sandPile.getGrid is not a function` error by using correct SandPile.getGridCopy() method
+- ✅ **Camera Tilt Function Error**: Fixed JavaScript naming collision between `this.tilt` property and `tilt()` method by renaming to `this.tiltAngle`
+- ✅ **Simulation Volume Scaling**: Resized simulation from 20x20x8 to 5x5x2 world units for better visualization
+- ✅ **Coordinate System Alignment**: Fixed rendering misalignment by updating worldSize consistently across all components (SandRenderer: 10→5)
+- ✅ **Performance Optimization**: Improved rendering smoothness with frame rate limiting and reduced update frequency (2→3 frames)
+- ✅ **Visual Polish**: Made sand source markers much smaller (0.2→0.05 radius) for cleaner appearance
 
 ## Known Issues 🐛
 
@@ -184,4 +191,10 @@ Phase 1 implementation is **100% complete** with all core functionality working 
 
 The application is production-ready with robust error handling and enhanced visualization capabilities.
 
-*Last updated: 2025-06-10*
+### Recent Updates (Session End)
+- ✅ **Final Performance Tuning**: Completed all rendering optimizations and visual polish
+- ✅ **Clean Console Operation**: All console errors resolved, smooth keyboard controls
+- ✅ **Coordinate System Fixes**: All rendering alignment issues resolved
+- ✅ **Visual Enhancement**: Ultra-small source markers and smooth timing achieved
+
+*Last updated: 2025-06-10 (Final Session)*

@@ -15,18 +15,19 @@ export class SandSource {
      * @param {number} sandRate - Rate of sand production (grains per second)
      * @param {number} gridSize - Total grid size for coordinate conversion
      */
-    constructor(gridX, gridY, sandRate = 1.0, gridSize = 64) {
+    constructor(gridX, gridY, sandRate = 1.0, gridSize = 64, worldSize = 5) {
         this.gridX = gridX;
         this.gridY = gridY;
         this.sandRate = sandRate;
         this.gridSize = gridSize;
+        this.worldSize = worldSize;
         this.accumulator = 0.0;
         
         // World coordinates for 3D visualization
-        const worldPos = gridToWorld(gridX, gridY, gridSize);
+        const worldPos = gridToWorld(gridX, gridY, gridSize, worldSize);
         this.worldX = worldPos.x;
         this.worldY = worldPos.y;
-        this.worldZ = 5.0; // Height above ground
+        this.worldZ = 2.0; // Height above ground (ceiling height)
         
         // Visual properties
         this.id = Math.random().toString(36).substr(2, 9);
@@ -40,13 +41,13 @@ export class SandSource {
      * @param {number} maxRate - Maximum sand rate
      * @returns {SandSource} New random sand source
      */
-    static createRandom(gridSize, minRate = 0.5, maxRate = 2.0) {
+    static createRandom(gridSize, minRate = 0.5, maxRate = 2.0, worldSize = 5) {
         const margin = Math.floor(gridSize * 0.1); // 10% margin from edges
         const gridX = Math.floor(Math.random() * (gridSize - 2 * margin)) + margin;
         const gridY = Math.floor(Math.random() * (gridSize - 2 * margin)) + margin;
         const sandRate = randomFloat(minRate, maxRate);
         
-        return new SandSource(gridX, gridY, sandRate, gridSize);
+        return new SandSource(gridX, gridY, sandRate, gridSize, worldSize);
     }
 
     /**

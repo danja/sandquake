@@ -16,7 +16,7 @@ export class SandRenderer {
     constructor(scene) {
         this.scene = scene;
         this.gridSize = 64;
-        this.worldSize = 10;
+        this.worldSize = 5;
         
         // Rendering parameters
         this.heightScale = 0.5; // Scale factor for sand height
@@ -31,7 +31,11 @@ export class SandRenderer {
         
         // Performance optimization
         this.updateCounter = 0;
-        this.updateFrequency = 2; // Update every N frames
+        this.updateFrequency = 3; // Update every N frames (reduced for smoother performance)
+        
+        // Frame rate limiting
+        this.lastUpdateTime = 0;
+        this.minUpdateInterval = 16.67; // ~60 FPS maximum update rate (ms)
     }
 
     /**
@@ -62,12 +66,20 @@ export class SandRenderer {
      * @param {Simulation} simulation - Simulation instance with current state
      */
     update(simulation) {
+        // Frame rate limiting
+        const currentTime = performance.now();
+        if (currentTime - this.lastUpdateTime < this.minUpdateInterval) {
+            return;
+        }
+        
         this.updateCounter++;
         
         // Skip updates for performance (update every N frames)
         if (this.updateCounter % this.updateFrequency !== 0) {
             return;
         }
+        
+        this.lastUpdateTime = currentTime;
         
         const grid = simulation.getGrid();
         const gridSize = simulation.getSandPile().getSize();
@@ -93,8 +105,8 @@ export class SandRenderer {
     shouldUpdateMesh(grid) {
         if (!this.lastGrid || !this.sandMesh) return true;
         
-        // Quick check: compare some sample points
-        const samplePoints = 16;
+        // Optimized check: compare fewer sample points for better performance
+        const samplePoints = 9; // Reduced from 16 to 9 for smoother performance
         const step = Math.floor(this.gridSize / Math.sqrt(samplePoints));
         
         for (let i = 0; i < this.gridSize; i += step) {

@@ -18,8 +18,8 @@ export class Camera {
             fov = 75,
             near = 0.1,
             far = 1000,
-            distance = 20,
-            height = 10,
+            distance = 5,
+            height = 2.5,
             panSpeed = 2.0,
             tiltSpeed = 1.0,
             minTilt = -Math.PI / 3,
@@ -33,7 +33,7 @@ export class Camera {
         this.distance = distance;
         this.height = height;
         this.angle = 0; // Horizontal rotation angle
-        this.tilt = 0;  // Vertical tilt angle
+        this.tiltAngle = 0;  // Vertical tilt angle
         
         // Movement parameters
         this.panSpeed = panSpeed;
@@ -53,9 +53,9 @@ export class Camera {
      */
     updatePosition() {
         // Calculate camera position using spherical coordinates
-        const x = this.distance * Math.cos(this.tilt) * Math.sin(this.angle);
-        const y = this.distance * Math.cos(this.tilt) * Math.cos(this.angle);
-        const z = this.height + this.distance * Math.sin(this.tilt);
+        const x = this.distance * Math.cos(this.tiltAngle) * Math.sin(this.angle);
+        const y = this.distance * Math.cos(this.tiltAngle) * Math.cos(this.angle);
+        const z = this.height + this.distance * Math.sin(this.tiltAngle);
         
         this.camera.position.set(x, y, z);
         this.camera.lookAt(this.target);
@@ -82,10 +82,10 @@ export class Camera {
      * @param {number} deltaTime - Time elapsed since last update
      */
     tilt(direction, deltaTime = 1/60) {
-        this.tilt += direction * this.tiltSpeed * deltaTime;
+        this.tiltAngle += direction * this.tiltSpeed * deltaTime;
         
         // Clamp tilt within limits
-        this.tilt = Math.max(this.minTilt, Math.min(this.maxTilt, this.tilt));
+        this.tiltAngle = Math.max(this.minTilt, Math.min(this.maxTilt, this.tiltAngle));
         
         this.updatePosition();
     }
@@ -151,7 +151,7 @@ export class Camera {
     getRotation() {
         return {
             angle: this.angle,
-            tilt: this.tilt
+            tilt: this.tiltAngle
         };
     }
 
@@ -162,7 +162,7 @@ export class Camera {
      */
     setRotation(angle, tilt) {
         this.angle = angle;
-        this.tilt = Math.max(this.minTilt, Math.min(this.maxTilt, tilt));
+        this.tiltAngle = Math.max(this.minTilt, Math.min(this.maxTilt, tilt));
         this.updatePosition();
     }
 
@@ -171,9 +171,9 @@ export class Camera {
      */
     reset() {
         this.angle = 0;
-        this.tilt = 0;
-        this.distance = 20;
-        this.height = 10;
+        this.tiltAngle = 0;
+        this.distance = 5;
+        this.height = 2.5;
         this.target.set(0, 0, 0);
         this.updatePosition();
     }
@@ -188,7 +188,7 @@ export class Camera {
     animateTo(targetAngle, targetTilt, duration = 1.0) {
         return new Promise((resolve) => {
             const startAngle = this.angle;
-            const startTilt = this.tilt;
+            const startTilt = this.tiltAngle;
             const startTime = performance.now();
             
             const animate = (currentTime) => {
@@ -201,7 +201,7 @@ export class Camera {
                     : 1 - Math.pow(-2 * progress + 2, 3) / 2;
                 
                 this.angle = startAngle + (targetAngle - startAngle) * easeInOut;
-                this.tilt = startTilt + (targetTilt - startTilt) * easeInOut;
+                this.tiltAngle = startTilt + (targetTilt - startTilt) * easeInOut;
                 
                 this.updatePosition();
                 
