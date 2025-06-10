@@ -2,7 +2,7 @@
 
 **Interactive 3D simulation of the Abelian sandpile model with real-time seismic analysis**
 
-*The hyperbole below is from Claude Code, which (with the help of Playwright MCP) did all the grunt work. But apart from a bit of roughness around the edges - brown sand - it does actually work.*
+*The hyperbole below is from Claude Code, which (with the help of Playwright MCP) did all the grunt work. But apart from a bit of roughness around the edges - brown sand - it does actually work. If you refresh the page.*
 
 Sandquake is a cutting-edge web application that visualizes the fascinating dynamics of sandpile physics through multiple synchronized displays, featuring professional-grade seismograph monitoring and frequency spectrum analysis.
 
