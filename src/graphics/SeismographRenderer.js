@@ -411,7 +411,7 @@ export class SeismographRenderer {
         
         // Draw title
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('SEISMOGRAPH', width / 2, 15);
+        this.ctx.fillText('SEISMOGRAPH (AC)', width / 2, 15);
         
         // Draw time scale info
         this.ctx.textAlign = 'right';

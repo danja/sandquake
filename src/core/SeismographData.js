@@ -40,6 +40,12 @@ export class SeismographData {
         this.peakSignal = 0;
         this.averageSignal = 0;
         
+        // AC coupling parameters
+        this.dcBuffer = new Array(120).fill(0); // 2 second buffer at 60fps
+        this.dcBufferIndex = 0;
+        this.dcComponent = 0; // Running DC average
+        this.acCoupled = true; // Enable AC coupling
+        
         // Timing
         this.lastUpdateTime = performance.now();
         this.samplesGenerated = 0;
@@ -141,6 +147,20 @@ export class SeismographData {
         
         // Apply faster decay for immediate response to events
         this.currentSignal = this.currentSignal * this.signalDecay + signal * (1 - this.signalDecay);
+        
+        // Apply AC coupling to remove DC drift (like real seismographs)
+        if (this.acCoupled) {
+            // Update DC buffer with current signal
+            this.dcBuffer[this.dcBufferIndex] = this.currentSignal;
+            this.dcBufferIndex = (this.dcBufferIndex + 1) % this.dcBuffer.length;
+            
+            // Calculate DC component as average of recent signals
+            this.dcComponent = this.dcBuffer.reduce((sum, val) => sum + val, 0) / this.dcBuffer.length;
+            
+            // Remove DC component to center signal around zero
+            const acSignal = this.currentSignal - this.dcComponent;
+            return acSignal;
+        }
         
         return this.currentSignal;
     }
@@ -250,6 +270,9 @@ export class SeismographData {
         this.currentSignal = 0;
         this.peakSignal = 0;
         this.averageSignal = 0;
+        this.dcComponent = 0; // Reset DC component for AC coupling
+        this.dcBuffer.fill(0); // Reset DC buffer
+        this.dcBufferIndex = 0;
         this.samplesGenerated = 0;
         this.lastUpdateTime = performance.now();
         
