@@ -19,7 +19,7 @@ export class SandRenderer {
         this.worldSize = 5;
         
         // Rendering parameters
-        this.heightScale = 0.5; // Scale factor for sand height
+        this.heightScale = 0.1; // Reduced scale factor for more realistic sand grains
         this.maxDisplayHeight = 20; // Maximum height for color mapping
         
         // Create materials for different sand heights
@@ -29,13 +29,13 @@ export class SandRenderer {
         this.sandMesh = null;
         this.lastGrid = null;
         
-        // Performance optimization
+        // Performance optimization - target 30 FPS
         this.updateCounter = 0;
-        this.updateFrequency = 3; // Update every N frames (reduced for smoother performance)
+        this.updateFrequency = 1; // Update every frame for smoothness
         
-        // Frame rate limiting
+        // 30 FPS rate limiting
         this.lastUpdateTime = 0;
-        this.minUpdateInterval = 16.67; // ~60 FPS maximum update rate (ms)
+        this.minUpdateInterval = 33.33; // ~30 FPS maximum update rate (ms)
     }
 
     /**
@@ -90,11 +90,9 @@ export class SandRenderer {
             this.lastGrid = null; // Force full rebuild
         }
         
-        // Check if grid has changed significantly
-        if (this.shouldUpdateMesh(grid)) {
-            this.updateSandMesh(grid);
-            this.lastGrid = grid.map(row => [...row]); // Deep copy
-        }
+        // Always update mesh for smooth rendering (remove change detection)
+        this.updateSandMesh(grid);
+        this.lastGrid = grid.map(row => [...row]); // Deep copy
     }
 
     /**
@@ -105,8 +103,8 @@ export class SandRenderer {
     shouldUpdateMesh(grid) {
         if (!this.lastGrid || !this.sandMesh) return true;
         
-        // Optimized check: compare fewer sample points for better performance
-        const samplePoints = 9; // Reduced from 16 to 9 for smoother performance
+        // More responsive change detection
+        const samplePoints = 16; // Increased back to 16 for better change detection
         const step = Math.floor(this.gridSize / Math.sqrt(samplePoints));
         
         for (let i = 0; i < this.gridSize; i += step) {
@@ -174,26 +172,36 @@ export class SandRenderer {
      */
     createSandColumn(gridX, gridY, height) {
         const worldPos = gridToWorld(gridX, gridY, this.gridSize, this.worldSize);
-        const scaledHeight = height * this.heightScale;
-        
-        // Create geometry
         const cellSize = this.worldSize / this.gridSize;
-        const geometry = new THREE.BoxGeometry(cellSize * 0.9, scaledHeight, cellSize * 0.9);
         
-        // Select material based on height
-        const materialIndex = Math.min(
-            Math.floor((height / this.maxDisplayHeight) * this.materials.length),
-            this.materials.length - 1
-        );
-        const material = this.materials[materialIndex];
+        // Create individual sand grain cubes instead of tall columns
+        const grains = new THREE.Group();
+        const grainSize = cellSize * 0.8; // Make grains slightly smaller than cell
         
-        // Create mesh
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(worldPos.x, scaledHeight / 2, worldPos.y);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
+        for (let i = 0; i < height; i++) {
+            // Create cube geometry for each grain
+            const geometry = new THREE.BoxGeometry(grainSize, grainSize * 0.9, grainSize);
+            
+            // Select material based on height position
+            const materialIndex = Math.min(
+                Math.floor((i / this.maxDisplayHeight) * this.materials.length),
+                this.materials.length - 1
+            );
+            const material = this.materials[materialIndex];
+            
+            // Create grain mesh
+            const grain = new THREE.Mesh(geometry, material);
+            grain.position.set(0, i * grainSize * 0.9, 0);
+            grain.castShadow = true;
+            grain.receiveShadow = true;
+            
+            grains.add(grain);
+        }
         
-        return mesh;
+        // Position the entire group
+        grains.position.set(worldPos.x, grainSize * 0.45, worldPos.y);
+        
+        return grains;
     }
 
     /**

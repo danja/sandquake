@@ -67,14 +67,14 @@ export class Scene {
 
         // Main directional light (sun)
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(2.5, 3.75, 1.25);
+        directionalLight.position.set(2.5, 10, 1.25);
         directionalLight.castShadow = true;
         
         // Configure shadow camera
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 12.5;
+        directionalLight.shadow.camera.far = 25;
         directionalLight.shadow.camera.left = -5;
         directionalLight.shadow.camera.right = 5;
         directionalLight.shadow.camera.top = 5;
@@ -85,7 +85,7 @@ export class Scene {
 
         // Secondary fill light
         const fillLight = new THREE.DirectionalLight(0x8888bb, 0.2);
-        fillLight.position.set(-1.25, 2.5, -1.25);
+        fillLight.position.set(-1.25, 6, -1.25);
         this.scene.add(fillLight);
     }
 
@@ -136,7 +136,7 @@ export class Scene {
         
         this.ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
         this.ceiling.rotation.x = -Math.PI / 2;
-        this.ceiling.position.y = 2;
+        this.ceiling.position.y = 8;
         
         this.scene.add(this.ceiling);
     }
@@ -146,7 +146,7 @@ export class Scene {
      */
     createBounds() {
         const boundsGeometry = new THREE.EdgesGeometry(
-            new THREE.BoxGeometry(5, 2, 5)
+            new THREE.BoxGeometry(5, 8, 5)
         );
         const boundsMaterial = new THREE.LineBasicMaterial({ 
             color: 0x666666,
@@ -155,7 +155,7 @@ export class Scene {
         });
         
         this.bounds = new THREE.LineSegments(boundsGeometry, boundsMaterial);
-        this.bounds.position.y = 1;
+        this.bounds.position.y = 4;
         
         this.scene.add(this.bounds);
     }

@@ -18,8 +18,8 @@ export class Camera {
             fov = 75,
             near = 0.1,
             far = 1000,
-            distance = 5,
-            height = 2.5,
+            distance = 8,
+            height = 4,
             panSpeed = 2.0,
             tiltSpeed = 1.0,
             minTilt = -Math.PI / 3,
@@ -95,7 +95,7 @@ export class Camera {
      * @param {number} distance - New distance
      */
     setDistance(distance) {
-        this.distance = Math.max(5, Math.min(50, distance));
+        this.distance = Math.max(8, Math.min(50, distance));
         this.updatePosition();
     }
 
@@ -172,8 +172,8 @@ export class Camera {
     reset() {
         this.angle = 0;
         this.tiltAngle = 0;
-        this.distance = 5;
-        this.height = 2.5;
+        this.distance = 8;
+        this.height = 4;
         this.target.set(0, 0, 0);
         this.updatePosition();
     }

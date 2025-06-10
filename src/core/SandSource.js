@@ -27,7 +27,7 @@ export class SandSource {
         const worldPos = gridToWorld(gridX, gridY, gridSize, worldSize);
         this.worldX = worldPos.x;
         this.worldY = worldPos.y;
-        this.worldZ = 2.0; // Height above ground (ceiling height)
+        this.worldZ = 8.0; // Height above ground (ceiling height)
         
         // Visual properties
         this.id = Math.random().toString(36).substr(2, 9);
