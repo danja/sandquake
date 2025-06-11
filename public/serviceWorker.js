@@ -9,34 +9,34 @@ const DYNAMIC_CACHE_NAME = 'sandquake-dynamic-v1.0.0';
 
 // Define what files to cache
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/src/main.js',
-  '/src/core/SandPile.js',
-  '/src/core/SandSource.js',
-  '/src/core/Simulation.js',
-  '/src/graphics/Camera.js',
-  '/src/graphics/HeatmapRenderer.js',
-  '/src/graphics/SandRenderer.js',
-  '/src/graphics/Scene.js',
-  '/src/controls/KeyboardHandler.js',
-  '/src/controls/SourcesControl.js',
-  '/src/controls/SpeedControl.js',
-  '/src/utils/MathUtils.js'
+  '/sandquake/',
+  '/sandquake/index.html',
+  '/sandquake/manifest.json',
+  '/sandquake/src/main.js',
+  '/sandquake/src/core/SandPile.js',
+  '/sandquake/src/core/SandSource.js',
+  '/sandquake/src/core/Simulation.js',
+  '/sandquake/src/graphics/Camera.js',
+  '/sandquake/src/graphics/HeatmapRenderer.js',
+  '/sandquake/src/graphics/SandRenderer.js',
+  '/sandquake/src/graphics/Scene.js',
+  '/sandquake/src/controls/KeyboardHandler.js',
+  '/sandquake/src/controls/SourcesControl.js',
+  '/sandquake/src/controls/SpeedControl.js',
+  '/sandquake/src/utils/MathUtils.js'
 ];
 
 // Files that should be cached dynamically
 const DYNAMIC_ASSETS = [
-  '/src/controls/MouseHandler.js',
-  '/src/controls/TouchHandler.js',
-  '/src/controls/RandomnessControl.js',
-  '/src/core/SeismographData.js',
-  '/src/graphics/SeismographRenderer.js',
-  '/src/graphics/SpectrumRenderer.js',
-  '/src/audio/FFTProcessor.js',
-  '/src/audio/AudioAnalyzer.js',
-  '/src/utils/SignalUtils.js'
+  '/sandquake/src/controls/MouseHandler.js',
+  '/sandquake/src/controls/TouchHandler.js',
+  '/sandquake/src/controls/RandomnessControl.js',
+  '/sandquake/src/core/SeismographData.js',
+  '/sandquake/src/graphics/SeismographRenderer.js',
+  '/sandquake/src/graphics/SpectrumRenderer.js',
+  '/sandquake/src/audio/FFTProcessor.js',
+  '/sandquake/src/audio/AudioAnalyzer.js',
+  '/sandquake/src/utils/SignalUtils.js'
 ];
 
 // Install event - cache static assets
@@ -138,7 +138,7 @@ self.addEventListener('fetch', (event) => {
             
             // Return offline fallback for HTML requests
             if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/index.html');
+              return caches.match('/sandquake/index.html');
             }
             
             // For other requests, just reject
@@ -198,14 +198,14 @@ self.addEventListener('notificationclick', (event) => {
       .then((clientList) => {
         // If app is already open, focus it
         for (const client of clientList) {
-          if (client.url === '/' && 'focus' in client) {
+          if (client.url === '/sandquake/' && 'focus' in client) {
             return client.focus();
           }
         }
         
         // Otherwise open new window
         if (clients.openWindow) {
-          return clients.openWindow('/');
+          return clients.openWindow('/sandquake/');
         }
       })
   );
